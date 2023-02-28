@@ -4,30 +4,19 @@ import os
 
 # Fernet is a module that allows you to encrypt texts
 
-'''
-def write_key():
-    key = Fernet.generate_key()
-    with open("key.key","wb") as key_file:
-        key_file.write(key)
-'''
 
-
-def load_key():
-    file = open("key.key","rb")
-    key = file.read()
-    file.close()
-    return key
+key = os.environ.get('PWDKEY')
 
 
 def view():
-    with open('passwords.txt','a') as f:
-        with open('passwords.txt','r') as f:
-            if os.path.getsize('passwords.txt')==0:
+    with open('passwords.txt', 'a') as f:
+        with open('passwords.txt', 'r') as f:
+            if os.path.getsize('passwords.txt') == 0:
                 print("No password is saved.\n")
                 return
             for line in f.readlines():
                 user, password = line.rstrip().split("|")
-                print("User name:", user, "| Password:", fer.decrypt(password.encode()).decode())
+                print("User name:", user, "| Password:", Fernet(key).decrypt(password.encode()).decode())
 
 
 def add():
@@ -35,7 +24,7 @@ def add():
     pwd = input("Password: ")
 
     with open('passwords.txt','a') as f:
-        f.write(name + " | " + fer.encrypt(pwd.encode()).decode() + "\n")
+        f.write(name + " | " + Fernet(key).encrypt(pwd.encode()).decode() + "\n")
 
     # you can write the below as even file = open('passwords.txt','a') but if we do so we must even close the file manually so we need to add file.close() and if you don't close the file it will still be open and if you try to access it somewhere else then that might cause problems.
     # Hence we use with keyword which helps you by automatically closing the file for you.
@@ -45,22 +34,22 @@ def add():
     # 'a' (append): Most flexible mode. It allows you to add something to the end of the existing file and create a new file if it doesn't exists. And so we can write the file and also we can even read the entire file.
 
 
+def main():
+    while True:
+        mode = input("Would you like to add a new password or view existing ones (view, add), press q to quit? ").lower()
+    
+        if mode == "view":
+            view()
+        elif mode == "add":
+            add()
+        elif mode == "q":
+            break
+        else:
+            print("Invalid mode.")
+            continue
 
-# Driver Code
 
-# write_key()
-key = load_key()
-fer = Fernet(key)
-
-while True:
-    mode = input("Would you like to add a new password or view existing ones (view, add), press q to quit? ").lower()
-
-    if mode == "view":
-        view()
-    elif mode == "add":
-        add()
-    elif mode == "q":
-        break
-    else:
-        print("Invalid mode.")
-        continue
+if __name__ == '__main__':
+    # To create a key run the command below and copy the key to your shell profile
+    # print(Fernet.generate_key())
+    main()
